@@ -1,0 +1,33 @@
+steps:  
+- name: gcr.io/cloud-builders/gsutil
+  args:
+  - cp
+  - gs://csharp-sdk-nuget/*
+  - /ciphers
+  volumes:
+  - name: ciphers
+    path: /ciphers
+- name: gcr.io/cloud-builders/gcloud
+  args:
+  - kms
+  - decrypt
+  - --location=global
+  - --keyring=container-builder
+  - --key=nuget
+  - --plaintext-file=/key/api-key
+  - --ciphertext-file=/ciphers/api-key.enc
+  volumes:
+  - name: ciphers
+    path: /ciphers
+  - name: key
+    path: /key
+- name: gcr.io/cloud-builders/dotnet
+  dir: 'src/'
+  args:
+  - pack
+  - -c=Release
+- name: gcr.io/repcore-prod/nuget-deploy:1
+  arg: ['-v', 'src/bin:/bin', 'vax']
+  volumes:
+  - name: key
+    path: /key
