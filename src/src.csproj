@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>vendasta-vax</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>byates@vendasta.com,lmelnyk@vendasta.com,twiebe@vendasta.com</Authors>
+    <Company>Vendasta</Company>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.5.1" />
