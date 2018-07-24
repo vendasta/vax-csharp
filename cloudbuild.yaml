@@ -26,7 +26,7 @@ steps:
   args:
   - pack
   - -c=Release
-- name: gcr.io/repcore-prod/nuget-deploy:1
+- name: gcr.io/repcore-prod/nuget-deploy:2
   args: ['-v', 'src/bin:/bin', 'vax']
   volumes:
   - name: key
