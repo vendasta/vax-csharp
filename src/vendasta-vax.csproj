@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net472</TargetFrameworks>
+    <TargetFramework>net472</TargetFramework>
     <PackageId>vendasta-vax</PackageId>
     <Version>0.0.3</Version>
     <Authors>byates@vendasta.com,lmelnyk@vendasta.com,twiebe@vendasta.com</Authors>
