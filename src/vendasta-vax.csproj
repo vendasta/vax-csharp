@@ -16,6 +16,6 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.2.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <Reference Include="System.Security.Cryptography" />
+    <PackageReference Include="System.Security.Cryptography" />
   </ItemGroup>
 </Project>
