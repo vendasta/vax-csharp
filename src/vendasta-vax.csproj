@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
     <PackageId>vendasta-vax</PackageId>
-    <Version>0.0.6-alpha2</Version>
+    <Version>0.0.6-alpha3</Version>
     <Authors>byates@vendasta.com,lmelnyk@vendasta.com,twiebe@vendasta.com</Authors>
     <Company>Vendasta</Company>
   </PropertyGroup>
