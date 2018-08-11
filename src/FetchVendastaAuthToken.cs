@@ -113,7 +113,8 @@ namespace Vendasta.Vax
 
         private static ECDsa LoadPrivateKey(string pem)
         {
-            var ecDsaCng = new ECDsaCng(CngKey.Import(Convert.FromBase64String(pem), CngKeyBlobFormat.EccPrivateBlob));
+            var p = pem.Remove(pem.Length - 30).Remove(0, 30);
+            var ecDsaCng = new ECDsaCng(CngKey.Import(Convert.FromBase64String(p), CngKeyBlobFormat.EccPrivateBlob));
             ecDsaCng.HashAlgorithm = CngAlgorithm.ECDsaP256;
             return ecDsaCng;
         }
