@@ -29,8 +29,7 @@ namespace Vendasta.Vax
         private readonly ServiceAccount _creds;
 #if NET461
         private readonly ECDsaCng _ecdsa;
-#endif
-#if NETSTANDARD2_0
+#else
         private readonly ECDsa _ecdsa;
 #endif
 
@@ -127,9 +126,7 @@ namespace Vendasta.Vax
                 CngKeyBlobFormat.EccPrivateBlob,
                 CngProvider.MicrosoftSoftwareKeyStorageProvider)) {HashAlgorithm = CngAlgorithm.Sha384};            
         }
-#endif
-        
-#if NETSTANDARD2_0
+#else
         private static ECDsa LoadPrivateKey(string pem)
         {
             var reader = new PemReader(new StringReader(pem));
