@@ -27,7 +27,12 @@ namespace Vendasta.Vax
     {
         private readonly string _scope;
         private readonly ServiceAccount _creds;
+#if NET461
+        private readonly ECDsaCng _ecdsa;
+#endif
+#if NETSTANDARD2_0
         private readonly ECDsa _ecdsa;
+#endif
 
         public FetchVendastaAuthToken(string scope)
         {
@@ -111,6 +116,20 @@ namespace Vendasta.Vax
             return tokenString;
         }
 
+#if NET461
+        private static ECDsaCng LoadPrivateKey(string pem)
+        {
+            var reader = new PemReader(new StringReader(pem));
+            var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
+            var p = (ECPrivateKeyParameters) keyPair.Private;
+            return new ECDsaCng(
+                CngKey.Import(Encoding.ASCII.GetBytes(p.ToString()),
+                CngKeyBlobFormat.EccPrivateBlob,
+                CngProvider.MicrosoftSoftwareKeyStorageProvider)) {HashAlgorithm = CngAlgorithm.Sha384};            
+        }
+#endif
+        
+#if NETSTANDARD2_0
         private static ECDsa LoadPrivateKey(string pem)
         {
             var reader = new PemReader(new StringReader(pem));
@@ -121,7 +140,7 @@ namespace Vendasta.Vax
             var ecPoint = parameters.G.Multiply(privKeyInt);
             var privKeyX = ecPoint.Normalize().XCoord.ToBigInteger().ToByteArrayUnsigned();
             var privKeyY = ecPoint.Normalize().YCoord.ToBigInteger().ToByteArrayUnsigned();
-
+    
             return ECDsa.Create(new ECParameters
             {
                 Curve = ECCurve.NamedCurves.nistP256,
@@ -133,6 +152,9 @@ namespace Vendasta.Vax
                 }
             });
         }
+#endif
+        
+        
 
         public void InvalidateToken()
         {
