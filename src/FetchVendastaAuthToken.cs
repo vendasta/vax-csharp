@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
@@ -114,9 +113,9 @@ namespace Vendasta.Vax
 
         private static ECDsa LoadPrivateKey(string pem)
         {
-            var bytes = Encoding.ASCII.GetBytes(pem);
-            var cert = new X509Certificate2(bytes);
-            return cert.GetECDsaPrivateKey();
+            var ecDsaCng = new ECDsaCng(CngKey.Import(Convert.FromBase64String(pem), CngKeyBlobFormat.EccPrivateBlob));
+            ecDsaCng.HashAlgorithm = CngAlgorithm.ECDsaP256;
+            return ecDsaCng;
         }
 
         public void InvalidateToken()
