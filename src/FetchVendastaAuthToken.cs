@@ -27,10 +27,12 @@ namespace Vendasta.Vax
     {
         private readonly string _scope;
         private readonly ServiceAccount _creds;
-#if NET461
-        private readonly ECDsaCng _ecdsa;
-#else
+
+#if NETSTANDARD2_0
         private readonly ECDsa _ecdsa;
+
+#else
+        private readonly ECDsaCng _ecdsa;
 #endif
 
         public FetchVendastaAuthToken(string scope)
@@ -115,18 +117,7 @@ namespace Vendasta.Vax
             return tokenString;
         }
 
-#if NET461
-        private static ECDsaCng LoadPrivateKey(string pem)
-        {
-            var reader = new PemReader(new StringReader(pem));
-            var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
-            var p = (ECPrivateKeyParameters) keyPair.Private;
-            return new ECDsaCng(
-                CngKey.Import(Encoding.ASCII.GetBytes(p.ToString()),
-                CngKeyBlobFormat.EccPrivateBlob,
-                CngProvider.MicrosoftSoftwareKeyStorageProvider)) {HashAlgorithm = CngAlgorithm.Sha384};            
-        }
-#else
+#if NETSTANDARD2_0
         private static ECDsa LoadPrivateKey(string pem)
         {
             var reader = new PemReader(new StringReader(pem));
@@ -148,6 +139,19 @@ namespace Vendasta.Vax
                     Y = privKeyY
                 }
             });
+        }
+#else
+        private static ECDsaCng LoadPrivateKey(string pem)
+        {
+            var reader = new PemReader(new StringReader(pem));
+            var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
+            var p = (ECPrivateKeyParameters) keyPair.Private;
+        
+            var cng = new ECDsaCng(
+                CngKey.Import(Encoding.ASCII.GetBytes(pem),
+                CngKeyBlobFormat.EccPrivateBlob,
+                CngProvider.MicrosoftSoftwareKeyStorageProvider)) {HashAlgorithm = CngAlgorithm.Sha384};
+            return cng.;
         }
 #endif
         
