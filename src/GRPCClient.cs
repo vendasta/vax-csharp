@@ -7,7 +7,7 @@ using Google.Protobuf;
 
 namespace Vendasta.Vax
 {
-    public class GrpcClient<T>: VaxClient where T: ClientBase
+    public class GrpcClient<T> : VaxClient where T : ClientBase
     {
         private readonly string _version;
         private readonly T _client;
@@ -69,7 +69,7 @@ namespace Vendasta.Vax
             {
                 return metadata;
             }
-            
+
             var token = await _auth.FetchToken();
             metadata.Add("authorization", $"Bearer {token}");
             return metadata;
@@ -99,14 +99,13 @@ namespace Vendasta.Vax
                 // This should never be thrown - we should be using the default request options at this point.
                 throw new SdkException("Invalid request options.");
             }
-            
+
             var timeout = GetTimeout(options.Timeout.Value);
             var metadata = GetMetadata(options.IncludeToken.Value);
-
+            var callOptions = new CallOptions(metadata, timeout).WithWaitForReady();
             try
             {
-                return theMethod.Invoke(_client,
-                    new object[] {request, metadata, timeout, default(System.Threading.CancellationToken)}) as IMessage;
+                return theMethod.Invoke(_client, new object[] { request, callOptions }) as IMessage;
             }
             catch (TargetInvocationException e)
             {
