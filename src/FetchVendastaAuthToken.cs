@@ -41,7 +41,7 @@ namespace Vendasta.Vax
             using (var file = File.OpenText(path))
             {
                 var serializer = new JsonSerializer();
-                _creds = (ServiceAccount)serializer.Deserialize(file, typeof(ServiceAccount));
+                _creds = (ServiceAccount) serializer.Deserialize(file, typeof(ServiceAccount));
             }
 
             _ecdsa = LoadPrivateKey(_creds.Key);
@@ -68,14 +68,14 @@ namespace Vendasta.Vax
                 if (response.IsSuccessStatusCode)
                 {
                     var responseData = JObject.Parse(responseString);
-                    return (string)responseData["token"];
+                    return (string) responseData["token"];
                 }
                 else
                 {
                     try
                     {
                         var responseData = JObject.Parse(responseString);
-                        throw new CredentialsException((string)responseData["token"]);
+                        throw new CredentialsException((string) responseData["token"]);
                     }
                     catch
                     {
@@ -113,9 +113,25 @@ namespace Vendasta.Vax
 
         private static ECDsa LoadPrivateKey(string pem)
         {
-            var ecDsaCng = new ECDsaCng(CngKey.Import(Convert.FromBase64String(pem), CngKeyBlobFormat.EccPrivateBlob));
-            ecDsaCng.HashAlgorithm = CngAlgorithm.ECDsaP256;
-            return ecDsaCng;
+            var reader = new PemReader(new StringReader(pem));
+            var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
+            var p = (ECPrivateKeyParameters) keyPair.Private;
+            var privKeyInt = p.D;
+            var parameters = SecNamedCurves.GetByName("secp256r1");
+            var ecPoint = parameters.G.Multiply(privKeyInt);
+            var privKeyX = ecPoint.Normalize().XCoord.ToBigInteger().ToByteArrayUnsigned();
+            var privKeyY = ecPoint.Normalize().YCoord.ToBigInteger().ToByteArrayUnsigned();
+
+            return ECDsa.Create(new ECParameters
+            {
+                Curve = ECCurve.NamedCurves.nistP256,
+                D = privKeyInt.ToByteArrayUnsigned(),
+                Q = new ECPoint
+                {
+                    X = privKeyX,
+                    Y = privKeyY
+                }
+            });
         }
 
         public void InvalidateToken()
