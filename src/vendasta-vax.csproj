@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <PackageId>vendasta-vax</PackageId>
-    <Version>0.0.6-alpha5</Version>
+    <Version>0.0.6-alpha6</Version>
     <Authors>byates@vendasta.com,lmelnyk@vendasta.com,twiebe@vendasta.com</Authors>
     <Company>Vendasta</Company>
   </PropertyGroup>

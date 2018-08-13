@@ -87,7 +87,7 @@ namespace Vendasta.Vax
 
         private IMessage CallMethodOnClient(string function, IMessage request, RequestOptions? reqOpts = null)
         {
-            var theMethod = _client.GetType().GetMethods().First(m => m.Name == function);
+            var theMethod = _client.GetType().GetMethods().Where(m => m.Name == function).ElementAt(1);
             if (theMethod == null)
             {
                 throw new MissingMethodException("Could not find method " + function);
