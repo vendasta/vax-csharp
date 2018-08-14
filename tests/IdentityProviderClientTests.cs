@@ -10,7 +10,7 @@ namespace Vendasta.Sso.Test
 
         public IdentityProviderClientTests()
         {
-            Environment.SetEnvironmentVariable("VENDASTA_APPLICATION_CREDENTIALS", "/Users/twiebe/demo-service-account.json");
+            Environment.SetEnvironmentVariable("VENDASTA_APPLICATION_CREDENTIALS", "C:/Users/twieb/Downloads/twiebe+sdk@vendasta.com-d1a26dc8.json");
             _client = new IdentityProviderClient(Vax.Environment.Demo, 20000);
         }
 

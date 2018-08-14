@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,7 @@ using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
+using Security.Cryptography;
 
 namespace Vendasta.Vax
 {
@@ -27,13 +29,7 @@ namespace Vendasta.Vax
     {
         private readonly string _scope;
         private readonly ServiceAccount _creds;
-
-#if NETSTANDARD2_0
         private readonly ECDsa _ecdsa;
-
-#else
-        private readonly ECDsaCng _ecdsa;
-#endif
 
         public FetchVendastaAuthToken(string scope)
         {
@@ -117,7 +113,7 @@ namespace Vendasta.Vax
             return tokenString;
         }
 
-#if NETSTANDARD2_0
+#if true
         private static ECDsa LoadPrivateKey(string pem)
         {
             var reader = new PemReader(new StringReader(pem));
@@ -128,36 +124,49 @@ namespace Vendasta.Vax
             var ecPoint = parameters.G.Multiply(privKeyInt);
             var privKeyX = ecPoint.Normalize().XCoord.ToBigInteger().ToByteArrayUnsigned();
             var privKeyY = ecPoint.Normalize().YCoord.ToBigInteger().ToByteArrayUnsigned();
-    
-            return ECDsa.Create(new ECParameters
-            {
-                Curve = ECCurve.NamedCurves.nistP256,
-                D = privKeyInt.ToByteArrayUnsigned(),
-                Q = new ECPoint
-                {
-                    X = privKeyX,
-                    Y = privKeyY
-                }
-            });
+
+            var x = EccKey.New(privKeyX, privKeyY, p.D.ToByteArray());
+            var ecdsa = new ECDsaCng(x);
+            return ecdsa;
+
+            //var current = ECDsa.Create(new ECParameters
+            //{
+             //   Curve = ECCurve.NamedCurves.nistP256,
+             //   D = privKeyInt.ToByteArrayUnsigned(),
+             //   Q = new ECPoint
+            //    {
+            //        X = privKeyX,
+            //        Y = privKeyY
+            //    }
+            //});
         }
 #else
-        private static ECDsaCng LoadPrivateKey(string pem)
+        private static byte[] GetBytesFromPEM(string pemString, string section)
         {
-            //var reader = new PemReader(new StringReader(pem));
-            //var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
-            //var p = (ECPrivateKeyParameters) keyPair.Private;
+            var header = String.Format("-----BEGIN {0}-----", section);
+            var footer = String.Format("-----END {0}-----", section);
 
-            var p = pem.Remove(pem.Length - 30).Remove(0, 31);
-            var cng = new ECDsaCng(
-                CngKey.Import(Encoding.ASCII.GetBytes(p),
-                CngKeyBlobFormat.EccPrivateBlob,
-                CngProvider.MicrosoftSoftwareKeyStorageProvider)) {HashAlgorithm = CngAlgorithm.Sha384};
-            return cng;
+            var start = pemString.IndexOf(header, StringComparison.Ordinal);
+            if (start < 0)
+                return null;
+
+            start += header.Length;
+            var end = pemString.IndexOf(footer, start, StringComparison.Ordinal) - start;
+
+            if (end < 0)
+                return null;
+
+            return Convert.FromBase64String(pemString.Substring(start, end));
+        }
+
+        private static ECDsa LoadPrivateKey(string pem)
+        {
+            byte[] certBuffer = GetBytesFromPEM(pem, "EC PRIVATE KEY");
+            var certificate = new X509Certificate2(certBuffer);
+            return certificate.GetECDsaPrivateKey();
         }
 #endif
         
-        
-
         public void InvalidateToken()
         {
         }
