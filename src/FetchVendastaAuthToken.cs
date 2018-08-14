@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +12,10 @@ using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
+
+#if NET461
 using Security.Cryptography;
+#endif
 
 namespace Vendasta.Vax
 {
@@ -124,24 +126,24 @@ namespace Vendasta.Vax
             var privKeyX = ecPoint.Normalize().XCoord.ToBigInteger().ToByteArrayUnsigned();
             var privKeyY = ecPoint.Normalize().YCoord.ToBigInteger().ToByteArrayUnsigned();
 
-            #if NETSTANDARD2_0
+#if NETSTANDARD2_0
             return ECDsa.Create(new ECParameters
             {
-               Curve = ECCurve.NamedCurves.nistP256,
-               D = privKeyInt.ToByteArrayUnsigned(),
-               Q = new ECPoint
+                Curve = ECCurve.NamedCurves.nistP256,
+                D = privKeyInt.ToByteArrayUnsigned(),
+                Q = new ECPoint
                 {
                     X = privKeyX,
                     Y = privKeyY
                 }
             });
-            #else
+#else
             var x = EccKey.New(privKeyX, privKeyY, p.D.ToByteArray());
             var ecdsa = new ECDsaCng(x);
             return ecdsa;
-            #endif
+#endif
         }
-        
+
         public void InvalidateToken()
         {
         }
