@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <!-- <TargetFrameworks>netstandard2.0;net472;net461</TargetFrameworks> -->
     <PackageId>vendasta-vax</PackageId>
-    <Version>0.0.6-alpha7</Version>
+    <Version>0.0.6</Version>
     <Authors>byates@vendasta.com,lmelnyk@vendasta.com,twiebe@vendasta.com</Authors>
     <Company>Vendasta</Company>
   </PropertyGroup>
@@ -11,14 +11,13 @@
     <PackageReference Include="BouncyCastle" Version="1.8.2" />
     <PackageReference Include="Google.Protobuf" Version="3.5.1" />
     <PackageReference Include="Grpc" Version="1.11.0" />
-    <PackageReference Include="jose-jwt" Version="2.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.2.2" />
     <PackageReference Include="System.Net.Http" Version="4.0.0" />
-    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <PackageReference Include="jose-jwt" Version="2.4.0" />
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />
   </ItemGroup>
 </Project>
