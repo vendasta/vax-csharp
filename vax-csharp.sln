@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vendasta-vax", "src\vendasta-vax.csproj", "{7330B49E-0C0F-489E-A0B2-376F7A56EE6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,17 @@ Global
 		{7330B49E-0C0F-489E-A0B2-376F7A56EE6B}.Release|x64.Build.0 = Release|Any CPU
 		{7330B49E-0C0F-489E-A0B2-376F7A56EE6B}.Release|x86.ActiveCfg = Release|Any CPU
 		{7330B49E-0C0F-489E-A0B2-376F7A56EE6B}.Release|x86.Build.0 = Release|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Debug|x64.Build.0 = Debug|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Debug|x86.Build.0 = Debug|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Release|x64.Build.0 = Release|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Release|x86.ActiveCfg = Release|Any CPU
+		{A1FCD18A-9EAA-4CA0-A3E9-84A2D9022D79}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

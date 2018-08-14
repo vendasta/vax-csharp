@@ -13,6 +13,10 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
 
+#if NET461
+using Security.Cryptography;
+#endif
+
 namespace Vendasta.Vax
 {
     public class ServiceAccount
@@ -27,13 +31,7 @@ namespace Vendasta.Vax
     {
         private readonly string _scope;
         private readonly ServiceAccount _creds;
-
-#if NETSTANDARD2_0
         private readonly ECDsa _ecdsa;
-
-#else
-        private readonly ECDsaCng _ecdsa;
-#endif
 
         public FetchVendastaAuthToken(string scope)
         {
@@ -117,7 +115,6 @@ namespace Vendasta.Vax
             return tokenString;
         }
 
-#if NETSTANDARD2_0
         private static ECDsa LoadPrivateKey(string pem)
         {
             var reader = new PemReader(new StringReader(pem));
@@ -128,7 +125,8 @@ namespace Vendasta.Vax
             var ecPoint = parameters.G.Multiply(privKeyInt);
             var privKeyX = ecPoint.Normalize().XCoord.ToBigInteger().ToByteArrayUnsigned();
             var privKeyY = ecPoint.Normalize().YCoord.ToBigInteger().ToByteArrayUnsigned();
-    
+
+#if NETSTANDARD2_0
             return ECDsa.Create(new ECParameters
             {
                 Curve = ECCurve.NamedCurves.nistP256,
@@ -139,23 +137,12 @@ namespace Vendasta.Vax
                     Y = privKeyY
                 }
             });
-        }
 #else
-        private static ECDsaCng LoadPrivateKey(string pem)
-        {
-            var reader = new PemReader(new StringReader(pem));
-            var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
-            var p = (ECPrivateKeyParameters) keyPair.Private;
-        
-            var cng = new ECDsaCng(
-                CngKey.Import(Encoding.ASCII.GetBytes(pem),
-                CngKeyBlobFormat.EccPrivateBlob,
-                CngProvider.MicrosoftSoftwareKeyStorageProvider)) {HashAlgorithm = CngAlgorithm.Sha384};
-            return cng.;
-        }
+            var x = EccKey.New(privKeyX, privKeyY, p.D.ToByteArray());
+            var ecdsa = new ECDsaCng(x);
+            return ecdsa;
 #endif
-        
-        
+        }
 
         public void InvalidateToken()
         {
