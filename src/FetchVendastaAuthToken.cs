@@ -128,8 +128,8 @@ namespace Vendasta.Vax
             var ecPoint = parameters.G.Multiply(privKeyInt);
             var privKeyX = ecPoint.Normalize().XCoord.ToBigInteger().ToByteArrayUnsigned();
             var privKeyY = ecPoint.Normalize().YCoord.ToBigInteger().ToByteArrayUnsigned();
-    
-            return ECDsa.Create(new ECParameters
+
+            var current = ECDsa.Create(new ECParameters
             {
                 Curve = ECCurve.NamedCurves.nistP256,
                 D = privKeyInt.ToByteArrayUnsigned(),
@@ -139,19 +139,16 @@ namespace Vendasta.Vax
                     Y = privKeyY
                 }
             });
+
+            return current;
         }
 #else
-        private static ECDsaCng LoadPrivateKey(string pem)
+        private static ECDsa LoadPrivateKey(string pem)
         {
             var reader = new PemReader(new StringReader(pem));
-            var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
-            var p = (ECPrivateKeyParameters) keyPair.Private;
-        
-            var cng = new ECDsaCng(
-                CngKey.Import(Encoding.ASCII.GetBytes(pem),
-                CngKeyBlobFormat.EccPrivateBlob,
-                CngProvider.MicrosoftSoftwareKeyStorageProvider)) {HashAlgorithm = CngAlgorithm.Sha384};
-            return cng.;
+            var ecDsaCng = new ECDsaCng(CngKey.Import(reader.ReadPemObject().Content, CngKeyBlobFormat.EccPrivateBlob));
+            ecDsaCng.HashAlgorithm = CngAlgorithm.ECDsaP256;
+            return ecDsaCng;
         }
 #endif
         
