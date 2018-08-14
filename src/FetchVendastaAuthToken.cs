@@ -143,15 +143,16 @@ namespace Vendasta.Vax
 #else
         private static ECDsaCng LoadPrivateKey(string pem)
         {
-            var reader = new PemReader(new StringReader(pem));
-            var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
-            var p = (ECPrivateKeyParameters) keyPair.Private;
-        
+            //var reader = new PemReader(new StringReader(pem));
+            //var keyPair = (AsymmetricCipherKeyPair) reader.ReadObject();
+            //var p = (ECPrivateKeyParameters) keyPair.Private;
+
+            var p = pem.Remove(pem.Length - 30).Remove(0, 31);
             var cng = new ECDsaCng(
-                CngKey.Import(Encoding.ASCII.GetBytes(pem),
+                CngKey.Import(Encoding.ASCII.GetBytes(p),
                 CngKeyBlobFormat.EccPrivateBlob,
                 CngProvider.MicrosoftSoftwareKeyStorageProvider)) {HashAlgorithm = CngAlgorithm.Sha384};
-            return cng.;
+            return cng;
         }
 #endif
         
