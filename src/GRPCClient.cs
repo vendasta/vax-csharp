@@ -15,6 +15,7 @@ namespace Vendasta.Vax
 
         public GrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000) : base(defaultTimeout)
         {
+            Console.WriteLine("VAX SECURE: " + secure);
             _version = System.Reflection.Assembly.GetAssembly(GetType()).GetName().Version.ToString();
             _auth = new FetchAuthTokenCache(new FetchVendastaAuthToken(scope));
 
@@ -23,6 +24,7 @@ namespace Vendasta.Vax
 
         private static Channel BuildChannel(string hostname, bool secure)
         {
+//            return new Channel(hostname, ChannelCredentials.Insecure);
             return secure ? new Channel(hostname, new SslCredentials()) : new Channel(hostname, ChannelCredentials.Insecure);
         }
 
@@ -102,7 +104,7 @@ namespace Vendasta.Vax
 
             var timeout = GetTimeout(options.Timeout.Value);
             var metadata = GetMetadata(options.IncludeToken.Value);
-            var callOptions = new CallOptions(metadata, timeout).WithWaitForReady();
+            var callOptions = new CallOptions(metadata, timeout);
             try
             {
                 return theMethod.Invoke(_client, new object[] { request, callOptions }) as IMessage;

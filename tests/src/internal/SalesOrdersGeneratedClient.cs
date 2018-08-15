@@ -2,7 +2,9 @@
 // Generated on 2018-08-09 19:42:47.7876276 +0000 UTC using container gcr.io/repcore-prod/sdkgen:latest
 // DO NOT EDIT!
 
+using System;
 using Vendasta.Vax;
+using Environment = Vendasta.Vax.Environment;
 
 namespace Vendasta.SalesOrders
 {
@@ -17,6 +19,7 @@ namespace Vendasta.SalesOrders
         private static ISalesOrders GetTransportClient(Environment env, float defaultTimeout)
         {
             var config = GetEnvConfig(env);
+            Console.Write(config.Secure);
             return new SalesOrdersGrpcClient(
                 config.Host,
                 config.Scope,
