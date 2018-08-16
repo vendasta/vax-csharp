@@ -138,7 +138,7 @@ namespace Vendasta.Vax
                 }
             });
 #else
-            var x = EccKey.New(privKeyX, privKeyY, p.D.ToByteArray());
+            var x = EccKey.New(privKeyX, privKeyY, privKeyInt.ToByteArrayUnsigned());
             var ecdsa = new ECDsaCng(x);
             return ecdsa;
 #endif
