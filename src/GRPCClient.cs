@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Grpc.Core;
 using Google.Protobuf;
+using Grpc.Core;
 
 namespace Vendasta.Vax
 {
@@ -15,7 +15,7 @@ namespace Vendasta.Vax
 
         public GrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000) : base(defaultTimeout)
         {
-            _version = System.Reflection.Assembly.GetAssembly(GetType()).GetName().Version.ToString();
+            _version = Assembly.GetAssembly(GetType()).GetName().Version.ToString();
             _auth = new FetchAuthTokenCache(new FetchVendastaAuthToken(scope));
 
             _client = Activator.CreateInstance(typeof(T), BuildChannel(hostname, secure)) as T;
@@ -28,25 +28,31 @@ namespace Vendasta.Vax
 
         protected IMessage DoRequest(string function, IMessage request, RequestOptions? reqOpts = null)
         {
-            try
+            var options = BuildRequestOptionsWithDefaults(reqOpts);
+            var maxTime = options.RetryOptions.MaxCallDuration;
+            
+            while (true)
             {
-                return CallMethodOnClient(function, request, reqOpts);
-            }
-            catch (RpcException e)
-            {
-                if (!e.Status.StatusCode.Equals(StatusCode.Unauthenticated))
-                {
-                    throw new SdkException(e.Message, e);
-                }
-
-                _auth.InvalidateToken();
                 try
                 {
-                    return CallMethodOnClient(function, request, reqOpts);
+                    return CallMethodOnClient(function, request, options);
                 }
-                catch (RpcException e1)
+                catch (RpcException e)
                 {
-                    throw new SdkException(e1.Message, e1);
+                    if (options.RetryOptions == null || !options.RetryOptions.ShouldRetry(GrpctoHttpCode(e.Status.StatusCode)))
+                    {
+                        throw new SdkException(e.Message, e);
+                    }
+
+                    var time = options.RetryOptions.Pause();
+                    if (IsRetryWithinMaxCallDuration(time, maxTime))
+                    {
+                        System.Threading.Thread.Sleep(Convert.ToInt32(time));
+                    }
+                    else
+                    {
+                        throw new SdkException(e.Message, e);
+                    }
                 }
             }
         }
@@ -85,7 +91,7 @@ namespace Vendasta.Vax
             return DateTime.UtcNow.AddMilliseconds(timeout);
         }
 
-        private IMessage CallMethodOnClient(string function, IMessage request, RequestOptions? reqOpts = null)
+        private IMessage CallMethodOnClient(string function, IMessage request, RequestOptions options)
         {
             var theMethod = _client.GetType().GetMethods().Where(m => m.Name == function).ElementAt(1);
             if (theMethod == null)
@@ -93,7 +99,6 @@ namespace Vendasta.Vax
                 throw new MissingMethodException("Could not find method " + function);
             }
 
-            var options = BuildRequestOptionsWithDefaults(reqOpts);
             if (options.Timeout == null || options.IncludeToken == null)
             {
                 // This should never be thrown - we should be using the default request options at this point.
@@ -115,6 +120,39 @@ namespace Vendasta.Vax
                 }
 
                 throw new SdkException($"Issue calling out to method {request}: {e.Message}", e);
+            }
+        }
+        
+        private static int GrpctoHttpCode(StatusCode code) {
+            switch (code) {
+                case StatusCode.OK:
+                return 200;
+                case StatusCode.InvalidArgument:
+                return 400;
+                case StatusCode.Unauthenticated:
+                return 401;
+                case StatusCode.PermissionDenied:
+                return 403;
+                case StatusCode.NotFound:
+                return 404;
+                case StatusCode.DeadlineExceeded:
+                return 408;
+                case StatusCode.AlreadyExists:
+                return 409;
+                case StatusCode.FailedPrecondition:
+                return 412;
+                case StatusCode.ResourceExhausted:
+                return 429;
+                case StatusCode.Unimplemented:
+                return 501;
+                case StatusCode.Cancelled:
+                return 503;
+                case StatusCode.Aborted:
+                return 503;
+                case StatusCode.Unavailable:
+                return 503;
+                default:
+                    return 500;
             }
         }
     }

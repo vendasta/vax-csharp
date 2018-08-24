@@ -1,4 +1,6 @@
-﻿namespace Vendasta.Vax
+﻿using System;
+
+namespace Vendasta.Vax
 {
     public class VaxClient
     {
@@ -20,7 +22,12 @@
 
             opts.Timeout = reqOpts.Value.Timeout ?? opts.Timeout;
             opts.IncludeToken = reqOpts.Value.IncludeToken ?? opts.IncludeToken;
+            opts.RetryOptions = reqOpts.Value.RetryOptions ?? opts.RetryOptions;
             return opts;
+        }
+        
+        protected bool IsRetryWithinMaxCallDuration(float retryTime, DateTime maxTime) {
+            return DateTime.Now.AddMilliseconds(retryTime) < maxTime;
         }
     }
 }
