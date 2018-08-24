@@ -29,8 +29,7 @@ namespace Vendasta.Vax
         protected IMessage DoRequest(string function, IMessage request, RequestOptions? reqOpts = null)
         {
             var options = BuildRequestOptionsWithDefaults(reqOpts);
-            var maxTime = options.RetryOptions.MaxCallDuration;
-            
+            var maxTime = options.RetryOptions?.MaxCallDuration;
             while (true)
             {
                 try

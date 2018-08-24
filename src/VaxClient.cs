@@ -26,7 +26,7 @@ namespace Vendasta.Vax
             return opts;
         }
         
-        protected bool IsRetryWithinMaxCallDuration(float retryTime, DateTime maxTime) {
+        protected static bool IsRetryWithinMaxCallDuration(float retryTime, DateTime? maxTime) {
             return DateTime.Now.AddMilliseconds(retryTime) < maxTime;
         }
     }
