@@ -38,7 +38,7 @@ namespace Vendasta.Vax
                 }
                 catch (RpcException e)
                 {
-                    if (options.RetryOptions == null || !options.RetryOptions.ShouldRetry(GrpctoHttpCode(e.Status.StatusCode)))
+                    if (options.RetryOptions == null || !options.RetryOptions.ShouldRetry(GrpcToHttpCode(e.Status.StatusCode)))
                     {
                         throw new SdkException(e.Message, e);
                     }
@@ -122,7 +122,7 @@ namespace Vendasta.Vax
             }
         }
         
-        private static int GrpctoHttpCode(StatusCode code) {
+        private static int GrpcToHttpCode(StatusCode code) {
             switch (code) {
                 case StatusCode.OK:
                 return 200;
