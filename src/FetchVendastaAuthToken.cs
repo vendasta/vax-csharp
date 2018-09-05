@@ -67,7 +67,7 @@ namespace Vendasta.Vax
             {
                 var stringContent = new StringContent($"{{\"token\":\"{token}\"}}", Encoding.UTF8,
                     "application/json");
-                var response = await client.PostAsync(_creds.TokenUrl, stringContent);
+                var response = await client.PostAsync(_creds.TokenUrl, stringContent).ConfigureAwait(false);
                 var responseString = response.Content.ReadAsStringAsync().Result;
                 if (response.IsSuccessStatusCode)
                 {

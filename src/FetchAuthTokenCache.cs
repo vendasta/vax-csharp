@@ -19,7 +19,7 @@ namespace Vendasta.Vax
         {
             var now = DateTime.UtcNow;
             if (_token == null || _tokenExpiry == null || _tokenExpiry < now) {
-                _token = await _fetcher.FetchToken();
+                _token = await _fetcher.FetchToken().ConfigureAwait(false);
                 _tokenExpiry = ParseExpiry(_token);
             }
 
