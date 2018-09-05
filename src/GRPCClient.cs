@@ -75,7 +75,7 @@ namespace Vendasta.Vax
                 return metadata;
             }
 
-            var token = await _auth.FetchToken();
+            var token = await _auth.FetchToken().ConfigureAwait(false);
             metadata.Add("authorization", $"Bearer {token}");
             return metadata;
         }
