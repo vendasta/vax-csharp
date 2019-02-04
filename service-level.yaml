@@ -1,0 +1,5 @@
+services:
+ - name: vax-csharp
+   language: C#
+   owner: no-owner
+   nonServiceType: library
