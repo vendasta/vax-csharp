@@ -33,7 +33,7 @@ namespace Vendasta.Vax
         private readonly ServiceAccount _creds;
         private readonly ECDsa _ecdsa;
 
-        public FetchVendastaAuthToken(string scope,  TextReader credentials = null)
+        public FetchVendastaAuthToken(string scope, TextReader credentials = null)
         {
             _scope = scope;
             if (credentials == null)
