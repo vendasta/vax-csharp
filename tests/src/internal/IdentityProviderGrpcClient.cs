@@ -2,13 +2,14 @@
 // Generated on 2018-08-03 14:36:42.9118512 +0000 UTC using container gcr.io/repcore-prod/sdkgen:latest
 // DO NOT EDIT!
 
+using System.IO;
 using Vendasta.Vax;
 
 namespace Vendasta.Sso
 {
     public class IdentityProviderGrpcClient: GrpcClient<global::Sso.V1.IdentityProvider.IdentityProviderClient>, IIdentityProvider 
     {
-        public IdentityProviderGrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000): base(hostname, scope, secure, defaultTimeout)
+        public IdentityProviderGrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000, TextReader credentials = null): base(hostname, scope, secure, defaultTimeout, credentials)
         {
         }
 

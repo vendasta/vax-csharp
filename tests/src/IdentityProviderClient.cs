@@ -1,6 +1,7 @@
 using Vendasta.Vax;
 
 using System;
+using System.IO;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using Environment = Vendasta.Vax.Environment;
@@ -10,7 +11,7 @@ namespace Vendasta.Sso
 {
     public class IdentityProviderClient : IdentityProviderGeneratedClient
     {
-        public IdentityProviderClient(Environment env, float defaultTimeout = 10000) : base(env, defaultTimeout)
+        public IdentityProviderClient(Environment env, float defaultTimeout = 10000, TextReader credentials = null) : base(env, defaultTimeout, credentials)
         {
         }
 
