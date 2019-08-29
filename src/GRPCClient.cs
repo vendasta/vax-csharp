@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -13,10 +14,10 @@ namespace Vendasta.Vax
         private readonly T _client;
         private readonly IFetchAuthToken _auth;
 
-        public GrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000) : base(defaultTimeout)
+        public GrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000, TextReader credentials = null) : base(defaultTimeout)
         {
             _version = Assembly.GetAssembly(GetType()).GetName().Version.ToString();
-            _auth = new FetchAuthTokenCache(new FetchVendastaAuthToken(scope));
+            _auth = new FetchAuthTokenCache(new FetchVendastaAuthToken(scope, credentials));
 
             _client = Activator.CreateInstance(typeof(T), BuildChannel(hostname, secure)) as T;
         }

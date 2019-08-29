@@ -33,24 +33,32 @@ namespace Vendasta.Vax
         private readonly ServiceAccount _creds;
         private readonly ECDsa _ecdsa;
 
-        public FetchVendastaAuthToken(string scope)
+        public FetchVendastaAuthToken(string scope, TextReader credentials = null)
         {
             _scope = scope;
-            var path = global::System.Environment.GetEnvironmentVariable("VENDASTA_APPLICATION_CREDENTIALS");
-            if (string.IsNullOrEmpty(path))
+            if (credentials == null)
             {
-                throw new CredentialsException("VENDASTA_APPLICATION_CREDENTIALS is not set");
-            }
+                var path = global::System.Environment.GetEnvironmentVariable("VENDASTA_APPLICATION_CREDENTIALS");
+                if (string.IsNullOrEmpty(path))
+                {
+                    throw new CredentialsException("VENDASTA_APPLICATION_CREDENTIALS is not set");
+                }
 
-            using (var file = File.OpenText(path))
+                using (var file = File.OpenText(path))
+                {
+                    var serializer = new JsonSerializer();
+                    _creds = (ServiceAccount) serializer.Deserialize(file, typeof(ServiceAccount));
+                }
+            }
+            else
             {
                 var serializer = new JsonSerializer();
-                _creds = (ServiceAccount) serializer.Deserialize(file, typeof(ServiceAccount));
+                _creds = (ServiceAccount) serializer.Deserialize(credentials, typeof(ServiceAccount));
             }
-
             _ecdsa = LoadPrivateKey(_creds.Key);
-        }
 
+        }
+        
         public async Task<string> FetchToken()
         {
             string token;

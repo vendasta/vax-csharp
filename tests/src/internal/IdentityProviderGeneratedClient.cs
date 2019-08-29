@@ -2,6 +2,7 @@
 // Generated on 2018-08-03 14:36:42.9118512 +0000 UTC using container gcr.io/repcore-prod/sdkgen:latest
 // DO NOT EDIT!
 
+using System.IO;
 using Vendasta.Vax;
 
 namespace Vendasta.Sso
@@ -9,19 +10,20 @@ namespace Vendasta.Sso
     public class IdentityProviderGeneratedClient: IIdentityProvider 
     {
         private readonly IIdentityProvider _transport;
-        public IdentityProviderGeneratedClient(Environment env, float defaultTimeout)
+        public IdentityProviderGeneratedClient(Environment env, float defaultTimeout, TextReader credentials = null)
         {
-            _transport = GetTransportClient(env, defaultTimeout);
+            _transport = GetTransportClient(env, defaultTimeout, credentials);
         }
-
-        private static IIdentityProvider GetTransportClient(Environment env, float defaultTimeout)
+        
+        private static IIdentityProvider GetTransportClient(Environment env, float defaultTimeout, TextReader credentials = null)
         {
             var config = GetEnvConfig(env);
             return new IdentityProviderGrpcClient(
                 config.Host,
                 config.Scope,
                 config.Secure,
-                defaultTimeout
+                defaultTimeout,
+                credentials
             );
         }
 
