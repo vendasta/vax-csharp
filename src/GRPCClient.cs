@@ -14,12 +14,15 @@ namespace Vendasta.Vax
         private readonly T _client;
         private readonly IFetchAuthToken _auth;
 
-        public GrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000, TextReader credentials = null) : base(defaultTimeout)
+        public GrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000, TextReader credentials = null) : this(hostname, defaultTimeout)
+        {
+            _auth = new FetchAuthTokenCache(new FetchVendastaAuthToken(scope, credentials));
+        }
+
+        protected GrpcClient(string hostname, float defaultTimeout = 10000) : base(defaultTimeout)
         {
             _version = Assembly.GetAssembly(GetType()).GetName().Version.ToString();
-            _auth = new FetchAuthTokenCache(new FetchVendastaAuthToken(scope, credentials));
-
-            _client = Activator.CreateInstance(typeof(T), BuildChannel(hostname, secure)) as T;
+            _client = Activator.CreateInstance(typeof(T), BuildChannel(hostname, false)) as T;
         }
 
         private static Channel BuildChannel(string hostname, bool secure)
@@ -71,13 +74,14 @@ namespace Vendasta.Vax
             metadata.Add("sdk_language", "csharp");
             metadata.Add("sdk_version", _version);
 
-            if (!includeToken)
+            if (!includeToken || this._auth == null)
             {
                 return metadata;
             }
 
             var token = await _auth.FetchToken().ConfigureAwait(false);
             metadata.Add("authorization", $"Bearer {token}");
+
             return metadata;
         }
 
@@ -93,7 +97,13 @@ namespace Vendasta.Vax
 
         private IMessage CallMethodOnClient(string function, IMessage request, RequestOptions options)
         {
-            var theMethod = _client.GetType().GetMethods().Where(m => m.Name == function).ElementAt(1);
+            var theMethod = _client.GetType()
+                                   .GetMethods()
+                                   .FirstOrDefault(m =>
+            {
+                ParameterInfo[] parameterInfo = m.GetParameters();
+                return m.Name == function && parameterInfo.Length == 2 && parameterInfo[1].ParameterType == typeof(CallOptions);
+            });
             if (theMethod == null)
             {
                 throw new MissingMethodException("Could not find method " + function);
@@ -119,38 +129,40 @@ namespace Vendasta.Vax
                     throw e.InnerException;
                 }
 
-                throw new SdkException($"Issue calling out to method {request}: {e.Message}", e);
+                throw e;
             }
         }
-        
-        private static int GrpcToHttpCode(StatusCode code) {
-            switch (code) {
+
+        private static int GrpcToHttpCode(StatusCode code)
+        {
+            switch (code)
+            {
                 case StatusCode.OK:
-                return 200;
+                    return 200;
                 case StatusCode.InvalidArgument:
-                return 400;
+                    return 400;
                 case StatusCode.Unauthenticated:
-                return 401;
+                    return 401;
                 case StatusCode.PermissionDenied:
-                return 403;
+                    return 403;
                 case StatusCode.NotFound:
-                return 404;
+                    return 404;
                 case StatusCode.DeadlineExceeded:
-                return 408;
+                    return 408;
                 case StatusCode.AlreadyExists:
-                return 409;
+                    return 409;
                 case StatusCode.FailedPrecondition:
-                return 412;
+                    return 412;
                 case StatusCode.ResourceExhausted:
-                return 429;
+                    return 429;
                 case StatusCode.Unimplemented:
-                return 501;
+                    return 501;
                 case StatusCode.Cancelled:
-                return 503;
+                    return 503;
                 case StatusCode.Aborted:
-                return 503;
+                    return 503;
                 case StatusCode.Unavailable:
-                return 503;
+                    return 503;
                 default:
                     return 500;
             }
