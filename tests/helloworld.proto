@@ -4,6 +4,7 @@ package helloworld;
 
 service Greeter {
   rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc Fail (FailRequest) returns (FailResponse) {}
   rpc FailThenSucceed (FailThenSucceedRequest) returns (FailThenSucceedResponse) {}
 }
 
@@ -13,6 +14,14 @@ message HelloRequest {
 
 message HelloReply {
   string message = 1;
+}
+
+message FailRequest {
+  int64 code = 1;
+}
+
+message FailResponse {
+  
 }
 
 message FailThenSucceedRequest {

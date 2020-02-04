@@ -14,6 +14,11 @@ namespace tests
             return Task.FromResult(new HelloReply { Message = "Hello " + request.Name });
         }
 
+        public override Task<FailResponse> Fail(FailRequest request, ServerCallContext context)
+        {
+            throw new RpcException(new Status((StatusCode)request.Code, ""));
+        }
+
         public override Task<FailThenSucceedResponse> FailThenSucceed(FailThenSucceedRequest request, ServerCallContext context)
         {
             if (retries >= request.SucceedAfter)

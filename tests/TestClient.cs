@@ -14,6 +14,11 @@ namespace tests
             return DoRequest("SayHello", req, options) as HelloReply;
         }
 
+        public FailResponse Fail(FailRequest req, RequestOptions? options = null)
+        {
+            return DoRequest("Fail", req, options) as FailResponse;
+        }
+
         public FailThenSucceedResponse FailThenSucceed(FailThenSucceedRequest req, RequestOptions? options = null)
         {
             return DoRequest("FailThenSucceed", req, options) as FailThenSucceedResponse;

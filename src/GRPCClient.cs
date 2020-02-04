@@ -37,14 +37,14 @@ namespace Vendasta.Vax
             int retries = 0;
             while (true)
             {
-
                 try
                 {
                     return CallMethodOnClient(function, request, options);
                 }
                 catch (RpcException e)
                 {
-                    if (_auth != null && e.Status.StatusCode == StatusCode.Unauthenticated) {
+                    if (_auth != null && e.Status.StatusCode == StatusCode.Unauthenticated)
+                    {
                         _auth.InvalidateToken();
                     }
                     var time = options.RetryOptions.Pause();
@@ -130,7 +130,6 @@ namespace Vendasta.Vax
                 {
                     throw e.InnerException;
                 }
-
                 throw e;
             }
         }

@@ -9,7 +9,7 @@ namespace tests
     [TestClass]
     public class GRPCClientTest
     {
-        const int Port = 50051;
+        static int Port = 50051;
         Server server;
 
         [TestInitialize]
@@ -27,6 +27,7 @@ namespace tests
         public void TestCleanup()
         {
             server.ShutdownAsync().Wait();
+            Port++; // Use a different port for each test.
         }
 
         [TestMethod]
@@ -75,16 +76,16 @@ namespace tests
         [TestMethod]
         public void TestRetryOnUnresponsiveServer()
         {
-            var client = new TestClient(String.Format("127.0.0.1:{0}", Port), 100);
-            var resp = client.FailThenSucceed(new FailThenSucceedRequest { Code = (long)Grpc.Core.StatusCode.Unavailable, SleepForMilliseconds = 40000, SucceedAfter = 5 });
-            Assert.AreEqual(5, resp.Retries);
+            var client = new TestClient(String.Format("127.0.0.1:{0}", Port), 1000);
+            var resp = client.FailThenSucceed(new FailThenSucceedRequest { Code = (long)Grpc.Core.StatusCode.Unavailable, SleepForMilliseconds = 40000, SucceedAfter = 3 });
+            Assert.AreEqual(3, resp.Retries);
         }
 
         [TestMethod]
         public void TestNoRetryOnInvalidArgument()
         {
             var client = new TestClient(String.Format("127.0.0.1:{0}", Port));
-            Assert.ThrowsException<SdkException>(() => client.FailThenSucceed(new FailThenSucceedRequest { Code = (long)Grpc.Core.StatusCode.InvalidArgument, SucceedAfter = 0 }));
+            Assert.ThrowsException<SdkException>(() => client.Fail(new FailRequest { Code = (long)Grpc.Core.StatusCode.InvalidArgument }));
         }
 
         [TestMethod]
