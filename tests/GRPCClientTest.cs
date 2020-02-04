@@ -86,5 +86,20 @@ namespace tests
             var client = new TestClient(String.Format("127.0.0.1:{0}", Port));
             Assert.ThrowsException<SdkException>(() => client.FailThenSucceed(new FailThenSucceedRequest { Code = (long)Grpc.Core.StatusCode.InvalidArgument, SucceedAfter = 0 }));
         }
+
+        [TestMethod]
+        public void TestRetryOnSingleUnauthenticatedError()
+        {
+            var client = new TestClient(String.Format("127.0.0.1:{0}", Port));
+            var resp = client.FailThenSucceed(new FailThenSucceedRequest { Code = (long)Grpc.Core.StatusCode.Unauthenticated, SucceedAfter = 1 });
+            Assert.AreEqual(1, resp.Retries);
+        }
+
+        [TestMethod]
+        public void TestNoRetryOnMultipleUnauthenticatedErrors()
+        {
+            var client = new TestClient(String.Format("127.0.0.1:{0}", Port));
+            Assert.ThrowsException<SdkException>(() => client.FailThenSucceed(new FailThenSucceedRequest { Code = (long)Grpc.Core.StatusCode.Unauthenticated, SucceedAfter = 2 }));
+        }
     }
 }

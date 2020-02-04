@@ -34,23 +34,25 @@ namespace Vendasta.Vax
         {
             var options = BuildRequestOptionsWithDefaults(reqOpts);
             var maxTime = options.RetryOptions?.MaxCallDuration;
+            int retries = 0;
             while (true)
             {
+
                 try
                 {
                     return CallMethodOnClient(function, request, options);
                 }
                 catch (RpcException e)
                 {
-                    if (options.RetryOptions == null || !options.RetryOptions.ShouldRetry(GrpcToHttpCode(e.Status.StatusCode)))
-                    {
-                        throw new SdkException(e.Message, e);
+                    if (_auth != null && e.Status.StatusCode == StatusCode.Unauthenticated) {
+                        _auth.InvalidateToken();
                     }
-
                     var time = options.RetryOptions.Pause();
-                    if (IsRetryWithinMaxCallDuration(time, maxTime))
+                    bool retryCondition = (e.Status.StatusCode == StatusCode.Unauthenticated && retries < 1) || options.RetryOptions.ShouldRetry(GrpcToHttpCode(e.Status.StatusCode));
+                    if (options.RetryOptions != null && retryCondition && IsRetryWithinMaxCallDuration(time, maxTime))
                     {
                         System.Threading.Thread.Sleep(Convert.ToInt32(time));
+                        retries++;
                     }
                     else
                     {
