@@ -4,26 +4,29 @@ namespace Vendasta.Vax
 {
     public class VaxClient
     {
-        private readonly float _defaultTimeout;
+        private readonly RequestOptions _defaultRequestOptions;
 
-        public VaxClient(float defaultTimeout)
+        public VaxClient(float timeout = 10000, bool includeToken = true, RetryOptions retryOptions = null)
         {
-            _defaultTimeout = defaultTimeout;
+            if (retryOptions == null)
+            {
+                retryOptions = new RetryOptions();
+            }
+            _defaultRequestOptions = new RequestOptions(timeout, includeToken, retryOptions);
         }
 
         protected RequestOptions BuildRequestOptionsWithDefaults(RequestOptions? reqOpts)
         {
-            var opts = new RequestOptions(_defaultTimeout, true);
-
             if (reqOpts == null)
             {
-                return opts;
+                return _defaultRequestOptions;
             }
 
-            opts.Timeout = reqOpts.Value.Timeout ?? opts.Timeout;
-            opts.IncludeToken = reqOpts.Value.IncludeToken ?? opts.IncludeToken;
-            opts.RetryOptions = reqOpts.Value.RetryOptions ?? opts.RetryOptions;
-            return opts;
+            return new RequestOptions(
+                reqOpts.Value.Timeout ?? _defaultRequestOptions.Timeout,
+                reqOpts.Value.IncludeToken ?? _defaultRequestOptions.IncludeToken,
+                reqOpts.Value.RetryOptions ?? _defaultRequestOptions.RetryOptions
+            );
         }
         
         protected static bool IsRetryWithinMaxCallDuration(float retryTime, DateTime? maxTime) {

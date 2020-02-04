@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package helloworld;
+
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc Fail (FailRequest) returns (FailResponse) {}
+  rpc FailThenSucceed (FailThenSucceedRequest) returns (FailThenSucceedResponse) {}
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}
+
+message FailRequest {
+  int64 code = 1;
+}
+
+message FailResponse {
+  
+}
+
+message FailThenSucceedRequest {
+  // The GRPC code to return.
+  int64 code = 1;
+  // The number of milliseconds to sleep. Does not sleep on success.
+  int64 sleep_for_milliseconds = 2;
+  // Succeed after a certain number of retries.
+  int64 succeed_after = 3;
+}
+
+message FailThenSucceedResponse {
+  // The number of retries the server forced.
+  int64 retries = 1;
+}
