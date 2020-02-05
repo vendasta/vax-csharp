@@ -14,15 +14,15 @@ namespace Vendasta.Vax
         private readonly T _client;
         private readonly IFetchAuthToken _auth;
 
-        public GrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000, TextReader credentials = null) : this(hostname, defaultTimeout)
+        public GrpcClient(string hostname, string scope, bool secure, float defaultTimeout = 10000, TextReader credentials = null) : this(hostname, defaultTimeout, secure)
         {
             _auth = new FetchAuthTokenCache(new FetchVendastaAuthToken(scope, credentials));
         }
 
-        protected GrpcClient(string hostname, float defaultTimeout = 10000) : base(defaultTimeout)
+        protected GrpcClient(string hostname, float defaultTimeout = 10000, bool secure = false) : base(defaultTimeout)
         {
             _version = Assembly.GetAssembly(GetType()).GetName().Version.ToString();
-            _client = Activator.CreateInstance(typeof(T), BuildChannel(hostname, false)) as T;
+            _client = Activator.CreateInstance(typeof(T), BuildChannel(hostname, secure)) as T;
         }
 
         private static Channel BuildChannel(string hostname, bool secure)
